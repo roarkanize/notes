@@ -1,0 +1,9 @@
+:PROPERTIES:
+:ID:       fe7ee781-e87d-4763-8f61-c5b69f1aeefc
+:END:
+#+title: Qubes OS: classifying qubes
+
+- *red*: untrusted (disposable VMs, Tor-connected VMs)
+- *yellow*
+- *purple*: internal VMs (backup, remote connection)
+- *black*: ultimately trusted (vault, etc.)

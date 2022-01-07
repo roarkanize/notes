@@ -1,0 +1,20 @@
+:PROPERTIES:
+:ID:       8a13f688-802f-46b9-bf24-ad7249a96aff
+:END:
+#+title: Using Windows on Qubes OS
+#+filetags: :research:qubes:lang-english:
+
+Using the [[https://github.com/elliotkillick/qvm-create-windows-qube][qvm-create-windows-qube]] tool makes setting up Windows qubes much easier.
+
+* Installing
+1. On a terminal in any qube, download the script to the home directory.
+   : [user@qube ~]$ wget https://raw.githubusercontent.com/elliotkillick/qvm-create-windows-qube/master/install.sh
+
+2. In Dom0, run the following command to copy the installation script into Dom0.
+   : [user@dom0 ~]$ qvm-run -p --filter-escape-chats --no-color-output qube \
+   :     "cat '/home/user/install.sh'" > install.sh
+
+3. Install!
+   : [user@dom0 ~]$ bash install.sh
+
+* Preparation

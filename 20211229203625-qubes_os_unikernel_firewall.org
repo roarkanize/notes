@@ -1,0 +1,76 @@
+:PROPERTIES:
+:ID:       651009d4-ddf4-486d-af1d-a1123e296d66
+:ROAM_REFS: https://github.com/mirage/qubes-mirage-firewall
+:END:
+#+title: Qubes OS unikernel firewall
+#+filetags: :research:qubes:lang-english:
+
+This page collects my notes on the =qubes-mirage-firewall= project, which provides a unikernel firewall written with the Mirage library that can replace =sys-firewall= in a Qubes OS installation.
+
+* Getting the kernel
+The kernel can be obtained in two ways:
+
+** Building from source
+Create a new standalone qube (I named mine =builder=) based on the =debian-11= template, change its private storage maximum size to 4096 MB, and change its system storage maximum size to 16384 MB.
+
+First, we install the dependencies we need
+: sudo apt install ca-certificates curl gnupg lsb-release git
+
+Now, install Docker, according to the instructions provided in [[https://docs.docker.com/engine/install/debian/#install-using-the-repository][this webpage]]
+: user@builder:~$ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+: user@builder:~$ echo \
+:   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+:   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+: user@builder:~$ sudo apt update
+: user@builder:~$ sudo apt install docker-ce docker-ce-cli containerd.io
+
+After Docker is installed, we make sure it's running
+: user@builder:~$ sudo systemctl start docker
+
+And after that, we clone the =qubes-mirage-firewall= git repository and start building
+: user@builder:~$ git clone https://github.com/mirage/qubes-mirage-firewall.git
+: user@builder:~$ cd qubes-mirage-firewall
+: user@builder:~/qubes-mirage-firewall$ sudo ./build-with-docker.sh
+
+The build process took around 17-20 minutes on my [[id:a3185371-f73b-4481-8c14-d566e80cb428][desktop computer]].
+
+After this, we copy the resulting tarball to the home directory for the next step
+: user@builder:~/qubes-mirage-firewall$ cp ./mirage-firewall.tar.bz2 /home/user
+: user@builder:~/qubes-mirage-firewall$ cd ~
+
+** Downloading a prebuilt binary (not recommended)
+Inside any qube, download the latest release from GitHub:
+: [user@qube ~]$ wget https://github.com/mirage/qubes-mirage-firewall/releases/download/0.7.1/mirage-firewall-0.7.1.tar.bz2 -o mirage-firewall.tar.bz2
+
+* Installing
+Assuming the resulting tarball is in the =builder= qube, we copy its contents to =dom0=
+: [user@dom0 ~]$ sudo -s
+: [root@dom0 user]# cd /var/lib/qubes/vm-kernels/
+: [root@dom0 vm-kernels]# qvm-run -p builder "cat /home/user/mirage-firewall.tar.bz2" | tar xjf -
+
+After that, we create a qube for running the unikernel like so
+: [user@dom0 ~]$ qvm-create \
+:   --property kernel=mirage-firewall \
+:   --property kernelopts='' \
+:   --property memory=64 \
+:   --property maxmem=64 \
+:   --property netvm=sys-net \
+:   --property provides_network=True \
+:   --property vcpus=1 \
+:   --property virt_mode=pv \
+:   --label=green \
+:   --class StandaloneVM \
+:   sys-mirage
+: [user@dom0 ~] qvm-features sys-mirage qubes-firewall 1
+
+* Testing
+To test, I fired up two disposable qubes with browsers, set one of them to use =sys-mirage= as its NetVM with the qube manager.
+
+I have fiber internet with 1Gbps download and 500Mbps upload. I used [[https://fast.com][Fast]] as a speedtest provider, and ran it first on the qube connected to =sys-firewall=, getting speeds that match my current internet plan (1.1Gbps download, 440Mbps upload and 5ms ping).
+
+When using the qube connected to =sys-mirage=, I saw a clear bottleneck with larger ping times and slower speeds overall (360Mbps download, 190Mbps upload and 39ms ping), and noticed that the CPU usage of the Mirage firewall qube spiked to 100% during the entire test.
+
+I decided that this test was probably unrealistic, and decided to switch all my qubes to use the unikernel firewall to test everything out in normal conditions, which has proven to work reliably.
+
+** Notes on the "bottleneck"
+I realized that the bottleneck may only come on higher speeds, as downloading a test item (Debian 11 netinst ISO) in both qubes got to the same network speed (average of 6 MB/s). I haven't tested any further.

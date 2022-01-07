@@ -1,0 +1,31 @@
+#+title: Memory usage in Qubes OS
+#+filetags: :research:qubes:lang-english:
+
+* Checking total memory and memory usage in Qubes OS
+:PROPERTIES:
+:ID:       b0701607-15f8-46de-b629-134d24eaae50
+:END:
+
+Using tools like ~top~ in a Dom0 terminal will not work since they will operate within the memory constrains given to the domain (as it runs as a paravirtualized domain inside the hypervisor). The ~xl~ tool can be used to retrieve this information directly from the hypervisor, like so
+: [user@dom0 ~]$ xl info | egrep '(total|free)_memory' | awk '{ printf("%s\t%2.2f GiB\n", $1, $3/1024) }'
+: total_memory    15.87 GiB
+: free_memory     4.93 GiB
+
+* Limiting Dom0 memory usage in Qubes OS
+:PROPERTIES:
+:ID:       79a35f4a-4f80-4eae-800a-698512b65355
+:END:
+
+One can tweak the memory dedicated for Dom0 in Qubes OS with the kernel option ~dom0_mem~, the default being ~dom0_mem=max:4096M~.
+(see =/boot/efi/EFI/qubes/xen.cfg= for UEFI-based systems running Qubes OS r4.0, =/etc/default/grub= for BIOS-based systems running Qubes OS r4.0 or any systems running Qubes OS r4.1)
+
+I found that in my experience, changing it to 1536 MiB (1.5 GiB) works well enough in my machine (as in, doesn't lead to any problems), although I would suggest not blindly following this and instead checking how much memory is used on normal circumstances to use a proper value. Note that the actual amount of memory seen by Dom0 will be around
+200 MiB below the specified amount.
+
+Using the ~free~ tool can be useful to figure this out
+: [user@dom0 ~]$ free -m
+:               total        used        free      shared  buff/cache   available
+: Mem:           1341         764          70         127         506         270
+: Swap:          7728         212        7516
+
+Even in situations which don't require a precise control of memory (i.e. 16 GB or more of RAM), limiting the memory assigned to Dom0 could be useful when distributing memory across other domains in stress cases, although I have yet to experience one of those.

@@ -1,0 +1,22 @@
+:PROPERTIES:
+:ID:       24d597ad-eab3-474d-914c-ed7e55b3c9f3
+:END:
+#+title: Setting up a secondary disk in Qubes OS
+#+filetags: :research:qubes:lang-english:
+
+My [[id:a3185371-f73b-4481-8c14-d566e80cb428][desktop computer]] has two internal drives, an M.2 nVME drive that works as my boot drive, and a SATA SSD drive that previously contained my old Debian installation. Since I realized I didn't need the old Debian installation anymore, I decided to use the SATA drive as a secondary pool to store qubes in.
+
+* Steps
+** Backup important files from old drive
+I just fired up a disposable qube, attached the whole drive to it, and browsed the home directory looking for things to backup. I copied them to a temporary, airgapped qube to later move them to their respective places.
+** Format drive and create filesystem
+My setup uses BTRFS, and I was reluctant on messing with LVM for my secondary drive, so I decided to use XFS, since it has =reflink= support.
+
+The drive I will be using is =/dev/sda=, if you follow this guide, change the definition below with what fits your setup:
+: export DRIVE=/dev/sda
+
+The first step for this is to set the drive for encryption like so:
+: cryptsetup luksFormat --hash=sha512 --key-size=512 --cipher=aes-xts-plain64 --verify-passphrase "$DRIVE"
+
+I used the same passphrase as my main drive to avoid having to enter two separate passwords at boot.
+

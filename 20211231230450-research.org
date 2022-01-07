@@ -1,0 +1,10 @@
+:PROPERTIES:
+:ID:       e1253719-d50c-4d13-b15b-e5f3aa794414
+:END:
+#+title: Category: Research
+
+Notes on programming and other topics not fitting in the other two main sections.
+
+* Sub-categories:
+- [[id:1305770b-d2f3-42fc-8397-ab5f8478c0ef][Qubes OS]]
+

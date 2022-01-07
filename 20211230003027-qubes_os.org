@@ -1,0 +1,16 @@
+:PROPERTIES:
+:ID:       1305770b-d2f3-42fc-8397-ab5f8478c0ef
+:ROAM_REFS: https://www.qubes-os.org
+:END:
+#+title: Category: Qubes OS
+#+filetags: :research:qubes:lang-english:
+
+*Qubes OS* is an operating system focused on security by isolation.
+
+* Notes in this category:
+- [[id:79a35f4a-4f80-4eae-800a-698512b65355][Limiting Dom0 memory usage in Qubes OS]]
+- [[id:b0701607-15f8-46de-b629-134d24eaae50][Checking total memory and memory usage in Qubes OS]]
+- [[id:651009d4-ddf4-486d-af1d-a1123e296d66][Qubes OS unikernel firewall]]
+- [[id:8a13f688-802f-46b9-bf24-ad7249a96aff][Using Windows on Qubes OS]] (unfinished)
+- [[id:24d597ad-eab3-474d-914c-ed7e55b3c9f3][Setting up a secondary disk in Qubes OS]] (unfinished)
+- [[id:1e2ec151-7249-4fb8-91a7-969bab63ff13][Syncing dotfiles across qubes]] (unfinished)

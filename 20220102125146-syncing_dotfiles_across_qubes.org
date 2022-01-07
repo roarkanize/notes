@@ -1,0 +1,58 @@
+:PROPERTIES:
+:ID:       1e2ec151-7249-4fb8-91a7-969bab63ff13
+:END:
+#+title: Syncing dotfiles across qubes
+#+filetags: :research:qubes:notes:lang-english:
+
+This page contains my notes on developing [[https://github.com/roarkanize/qsyncd][qsyncd]], a solution for safe file and directory synchronization within [[id:1305770b-d2f3-42fc-8397-ab5f8478c0ef][Qubes OS]].
+
+* Approach 1: client/server architecture
+The codebase exposes two commands: ~qsyncd~ and ~qsync-client~, and the following RPC endpoints: ~roark.SyncRegister~, ~roark.LocalSync~, and ~roark.CloudSync~. All code executes only in a dedicated qube (named *sync* for the purpose of this page).
+
+~qsync-client~ is simply a wrapper for the daemon's internal RPC interface, and is called by the actual Qubes RPC endpoint scripts.
+
+** Suggested modifications to Dom0 policy files
+To avoid extra authorization requests when using ~roark.LocalSync~, in =/etc/qubes-rpc/policy/qubes.Filecopy=:
+
+: $anyvm sync allow
+: sync $anyvm allow
+
+** Qubes RPC endpoints
+*** ~roark.SyncRegister~ RPC endpoint
+This endpoint simply registers a file or directory in the ~qsyncd~ database.
+
+It takes a type mark (=d= for directory, =r= for regular file) and a pathname to sync to in the standard input, and a key for the database entry from the RPC endpoint argument
+
+: $ echo 'd /home/user/dot' | qrexec-client-vm sync roark.SyncRegister+dotfiles
+: $ echo $?
+: 0
+
+*** ~roark.SyncPull~ RPC endpoint
+This endpoint /pulls/ a specific (or all) entry from the sync qube to one (or all) qubes that are registered to sync.
+
+: $ # synchronize all entries to all registered qubes
+: $ echo '*' | qrexec-client-vm sync roark.PullSync
+
+: $ # synchronize a single entry to a single qube
+: $ echo 'work' | qrexec-client-vm sync roark.PullSync+dotfiles
+
+*** ~roark.SyncInter~ RPC endpoint
+This is a /stateful/ endpoint consisting of two main message types:
+
+The ~handshake~ message accepts two arguments in its standard input: the destination VM, and the entry to sync; and returns a transaction ID in its standard output
+
+: $ echo 'dotfiles' | qrexec-client-vm sync roark.LocalSync+handshake
+: 1764
+
+After a handshake is done, the caller is responsible for pushing the file or directory (in this case as a TAR archive) to the sync VM like so:
+
+: $ tar cf dotfiles.tar dotfiles/
+: $ qvm-copy dotfiles.tar # copy to sync VM
+
+Once the file is pushed, the caller can send the next message, ~archiveSent~, which takes a transaction ID and a filename as arguments, like so
+
+: $ echo '1769 dotfiles.tar' | qrexec-client-vm sync roark.LocalSync+archiveSent
+
+The daemon now handles the file (extracting it if it is a TAR archive) and sends it to the destination VM, blocking the call until finished.
+
+*** TODO ~roark.SyncPush~ RPC endpoint

@@ -1,0 +1,38 @@
+:PROPERTIES:
+:ID:       39331a3c-9b55-4c88-a02d-d7d63e8548d1
+:END:
+#+title: Technical details on my setup
+#+filetags: :research:lang-english:
+
+* Contents
+- [[id:a3185371-f73b-4481-8c14-d566e80cb428][Desktop computer]]
+- [[id:e8f87b57-afb6-4825-9eb7-2038e2d27d26][Laptop]]
+
+  
+* Desktop computer
+:PROPERTIES:
+:ID:       a3185371-f73b-4481-8c14-d566e80cb428
+:END:
+
+My main computer is a *Lenovo ThinkCentre m720q*, running [[id:1305770b-d2f3-42fc-8397-ab5f8478c0ef][Qubes OS]] r4.0. This is the computer I use for most of my daily activities.
+
+** Specs
+- *Machine name*: n/a
+- *CPU*: Intel Core i5-8400T (6 cores, 6 threads)
+- *Disks*: 240G M.2 nVME drive, 240G SATA SSD drive
+- *RAM*: 16GB
+
+  
+* Laptop
+:PROPERTIES:
+:ID:       e8f87b57-afb6-4825-9eb7-2038e2d27d26
+:END:
+
+I also have a *Lenovo ThinkPad L420* which runs Windows 7, and is at all times disconnected from the internet. I use this computer for music production.
+
+** Specs
+- *Machine name*: =WOLVERINE=
+- *CPU*: Intel Core i5-2520M (2 cores, 4 threads)
+- *Disk*: 240G SATA SSD drive
+- *RAM*: 12GB
+- *Screen resolution*: 1366x768

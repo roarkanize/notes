@@ -1,0 +1,9 @@
+:PROPERTIES:
+:ID:       3b633021-d5a8-4250-a3b3-24f716e96e4a
+:END:
+#+title: Note taking methods
+
+As of now (<2021-12-29 Wed>), I have a pretty disjoint method for taking notes:
+
+* Tech-related note taking
+Any notes related to technology, 
